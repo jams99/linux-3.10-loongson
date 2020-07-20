@@ -5357,6 +5357,7 @@ static void __cond_resched(void)
 
 int __sched _cond_resched(void)
 {
+	//resched会在唤醒高优先级进程或者定时器中断检测到当前进程运行时间长时设置
 	if (should_resched()) {
 		__cond_resched();
 		return 1;

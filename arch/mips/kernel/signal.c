@@ -161,6 +161,7 @@ int setup_sigcontext(struct pt_regs *regs, struct sigcontext __user *sc)
 #ifdef CONFIG_CPU_HAS_SMARTMIPS
 	err |= __put_user(regs->acx, &sc->sc_acx);
 #endif
+	//hi/lo的含义是什么？
 	err |= __put_user(regs->hi, &sc->sc_mdhi);
 	err |= __put_user(regs->lo, &sc->sc_mdlo);
 	if (cpu_has_dsp) {
@@ -481,10 +482,11 @@ static int setup_rt_frame(void *sig_return, struct ksignal *ksig,
 	 * $25 and c0_epc point to the signal handler, $29 points to
 	 * the struct rt_sigframe.
 	 */
-	regs->regs[ 4] = ksig->sig;
-	regs->regs[ 5] = (unsigned long) &frame->rs_info;
-	regs->regs[ 6] = (unsigned long) &frame->rs_uc;
-	regs->regs[29] = (unsigned long) frame;
+	//伪造用户态栈信息，使内核返回后直接执行sa_handler
+	regs->regs[ 4] = ksig->sig;                       //a0
+	regs->regs[ 5] = (unsigned long) &frame->rs_info; //a1
+	regs->regs[ 6] = (unsigned long) &frame->rs_uc;   //a2
+	regs->regs[29] = (unsigned long) frame;           //a3
 	regs->regs[31] = (unsigned long) sig_return;
 	regs->cp0_epc = regs->regs[25] = (unsigned long) ksig->ka.sa.sa_handler;
 

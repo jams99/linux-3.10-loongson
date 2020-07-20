@@ -735,6 +735,7 @@ void  tlb_init(void)
 	    current_cpu_type() == CPU_R14000)
 		write_c0_framemask(0);
 
+	//这里设置RIXI
 	if (cpu_has_rixi) {
 		/*
 		 * Enable the no read, no exec bits, and enable large virtual

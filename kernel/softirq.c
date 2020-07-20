@@ -720,6 +720,8 @@ static struct notifier_block cpu_nfb = {
 	.notifier_call = cpu_callback
 };
 
+//this is a normal kthread
+//in rt linux, this is a rt thread
 static struct smp_hotplug_thread softirq_threads = {
 	.store			= &ksoftirqd,
 	.thread_should_run	= ksoftirqd_should_run,

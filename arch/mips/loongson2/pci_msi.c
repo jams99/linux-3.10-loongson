@@ -122,6 +122,7 @@ int ls2k_setup_msi_irq(struct pci_dev *pdev, struct msi_desc *desc)
 
 	pos = irq2bit(irq);
 	irq_set_msi_desc(irq, desc);
+	//地址写入PCIE设备
 	msg.address_hi = 0;
 	msg.address_lo = pos<32?LS2K_INT_MSI_TRIGGER_0:LS2K_INT_MSI_TRIGGER_1;
 

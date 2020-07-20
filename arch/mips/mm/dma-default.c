@@ -234,10 +234,16 @@ static inline void __dma_sync(struct page *page,
 static void mips_dma_unmap_page(struct device *dev, dma_addr_t dma_addr,
 	size_t size, enum dma_data_direction direction, struct dma_attrs *attrs)
 {
+	//根据cache一致性属性，决定是否同步，请注意这里的检测属性函数与map_page不同
+	//DMA_FROM_DEVICE，map之后CPU不再访问, 直到收到数据，执行完dma_unmap_sigle，后CPU才会访问
+	//所以unmap时，cache中也不会存在副本。
+	//DMA_TO_DEVICE，cpu先填充数据，再dma_map_single，DMA地址告诉网卡，网卡发送数据，发送完成后unmap
+	//unmap时不同步，不会存在数据错误
 	if (cpu_is_noncoherent_r10000(dev))
 		__dma_sync(dma_addr_to_page(dev, dma_addr),
 			   dma_addr & ~PAGE_MASK, size, direction);
 
+	//啥也不干
 	plat_unmap_dma_mem(dev, dma_addr, size, direction);
 }
 
@@ -265,9 +271,11 @@ static dma_addr_t mips_dma_map_page(struct device *dev, struct page *page,
 	unsigned long offset, size_t size, enum dma_data_direction direction,
 	struct dma_attrs *attrs)
 {
+	//根据cache一致性属性决定是否sync
 	if (!plat_device_is_coherent(dev))
 		__dma_sync(page, offset, size, direction);
 
+	//返回page对应的DMA地址，在2K上就是物理地址
 	return plat_map_dma_mem_page(dev, page) + offset;
 }
 

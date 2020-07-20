@@ -1303,6 +1303,7 @@ static void insert_work(struct pool_workqueue *pwq, struct work_struct *work,
 	struct worker_pool *pool = pwq->pool;
 
 	/* we own @work, set data and link */
+	//设置work的data信息,包括本次运行的pwq
 	set_work_pwq(work, pwq, extra_flags);
 	list_add_tail(&work->entry, head);
 	get_pwq(pwq);
@@ -1400,10 +1401,12 @@ retry:
 	 */
 	last_pool = get_work_pool(work);
 	if (last_pool && last_pool != pwq->pool) {
+		//如果上次运行的poll不是本cpu的poll
 		struct worker *worker;
 
 		spin_lock(&last_pool->lock);
 
+		//且上次运行还没有结束，就把work挂入上次的pool
 		worker = find_worker_executing_work(last_pool, work);
 
 		if (worker && worker->current_pwq->wq == wq) {
@@ -3551,6 +3554,7 @@ int workqueue_sysfs_register(struct workqueue_struct *wq)
 		return ret;
 	}
 
+	//这里是不是可以把最后执行的名字传递出去？
 	if (wq->flags & WQ_UNBOUND) {
 		struct device_attribute *attr;
 

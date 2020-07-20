@@ -218,6 +218,7 @@ void show_stack(struct task_struct *task, unsigned long *sp)
 			memcpy(&regs, kdb_current_regs, sizeof(regs));
 #endif /* CONFIG_KGDB_KDB */
 		} else {
+			//准备pc、sp、ra
 			prepare_frametrace(&regs);
 		}
 	}
